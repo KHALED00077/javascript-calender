@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        table,
+        tr,
+        td {
+            border-collapse: collapse;
+            border: solid 1px;
+            padding: 12px;
+        }
+        
+        #calenderDiv {
+            margin: 10%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button onclick=" goToPreviousMonth(1)">flecheGauche</button>
+    <button onclick="goToNextMonth(1)">flecheDroite</button>
+
+    <div id="container">
+        <div id="calenderDiv"></div>
+    </div>
+
+    <script>
+        let daysLabelsArray = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        let monthsLabelsArray = ['January', 'February', 'March', 'April',
+            'May', 'June', 'July', 'August', 'September',
+            'October', 'November', 'December'
+        ];
+        let table = document.createElement("table");
+        let tbody = document.createElement("tbody");
+        let thead = document.createElement("thead");
+        let trHead = document.createElement("tr");
+
+        // fixe the number of rows at 8 rows, the variables tableNumberOfRow and bodyRow are used in the function creadBody row to dinamically creat the table rows
+        let tableNumberOfRow = 8;
+        let bodyRow;
+
+        thead.appendChild(trHead);
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        calenderDiv.appendChild(table)
+
+        var inputDate = collecMonthDay(new Date().getFullYear(), new Date().getMonth());
+        var previousMonthDate = collecMonthDay(new Date(inputDate[0]).getFullYear(), new Date(inputDate[0]).getMonth() - 1);
+        var nextMonthDate = collecMonthDay(new Date(inputDate[0]).getFullYear(), new Date(inputDate[0]).getMonth() + 1);
+
+        /* let inputDate = collecMonthDay(2021, 0);
+        let previousMonthDate = collecMonthDay(2021, 0, 0);
+        let nextMonthDate = collecMonthDay(2021, 11, 1);
+        
+        */
+
+        function goToPreviousMonth(num) {
+
+            var inputDate = collecMonthDay(new Date().getFullYear(), new Date().getMonth() - num);
+            var previousMonthDate = collecMonthDay(new Date(inputDate[0]).getFullYear(), new Date(inputDate[0]).getMonth() - num);
+            var nextMonthDate = collecMonthDay(new Date(inputDate[0]).getFullYear(), new Date(inputDate[0]).getMonth());
+
+            // return inputDate;
+        }
+
+        function goToNextMonth(num) {
+            inputDate = collecMonthDay(new Date().getFullYear(), new Date().getMonth() + num);
+            previousMonthDate = collecMonthDay(new Date(inputDate[0]).getFullYear(), new Date(inputDate[0]).getMonth());
+            nextMonthDate = collecMonthDay(new Date(inputDate[0]).getFullYear(), new Date(inputDate[0]).getMonth() + num);
+        }
+
+
+
+
+        let firstDay = (new Date(inputDate[0]).getDay());
+
+        //creat a function that collect and return all month day in a given  array 
+        function collecMonthDay(year, month) {
+            let onDay = 86400000;
+            let monthDayArray = [];
+            let monthBegeningDate = new Date(year, month, 1);
+            let monthEndDate = new Date(year, month + 1, 0);
+            let monthBegeningDateNum = +monthBegeningDate
+
+            while (monthBegeningDateNum <= +monthEndDate) {
+                if (monthBegeningDateNum > +monthEndDate) break;
+                monthDayArray.push(monthBegeningDateNum)
+                monthBegeningDateNum += onDay;
+            }
+            return monthDayArray
+        }
+
+        //creat the table body rows
+
+        // console.log(collecMonthDay(new Date().getFullYear(), new Date().getMonth()));
+
+
+        function creatBodyRows(tableNumberOfRow) {
+            bodyRow = document.createElement('tr');
+            tbody.appendChild(bodyRow);
+
+
+            if (tableNumberOfRow - 1 > 0) {
+                return creatBodyRows(tableNumberOfRow - 1);
+            }
+        }
+
+        creatBodyRows(tableNumberOfRow);
+
+        //table title and arrow that allow to navigate months
+        // creatTableTitle put the selected month on the top of the table
+        function creatTableTitle(ind) {
+            let newInd = ind + 1;
+            let td = document.createElement("td");
+            // td.innerHTML = monthsLabelsArray[new Date().getMonth()]
+            table.rows[0].appendChild(td)
+            if (newInd < 3) {
+                return creatTableTitle(ind + 1)
+            }
+        }
+
+        creatTableTitle(0);
+
+        table.rows[0].cells[1].innerHTML = monthsLabelsArray[new Date(inputDate[0]).getMonth()]
+        table.rows[0].cells[1].colSpan = 5;
+        table.rows[0].cells[1].style.textAlign = "center";
+
+        table.rows[0].cells[0].setAttribute('id', "flecheGauche");
+        flecheGauche.insertAdjacentHTML('afterbegin', `<i class = "fas fa-angle-left" onclick='goToPreviousMonth()'></i>`)
+
+        flecheGauche.addEventListener("click", goToPreviousMonth(1));
+
+        table.rows[0].cells[2].setAttribute('id', "flecheDroite");
+        flecheDroite.insertAdjacentHTML('afterbegin', `<i class="fas fa-angle-right"></i> `)
+        flecheDroite.addEventListener('click', goToNextMonth(2))
+
+        // 
+        // console.log(.getMonth());
+
+        //creatHead is a recursive function that  populate the table head, with the week days label first day being monday
+
+        function creatHead(index) {
+            //index = index of the week day in the dayLabelsArray
+            let newIndex = index + 1;
+            let td = document.createElement("td");
+            td.innerHTML = daysLabelsArray[newIndex % daysLabelsArray.length]
+            table.rows[1].appendChild(td);
+
+            if (newIndex < 7) {
+                return creatHead(index + 1)
+            }
+        }
+        creatHead(0);
+
+        // table.rows[0].cells[1].innerHTML = "khn"
+
+        // creatActualMonthDayTd creat the table td and put them in the actualMonthTdDayArray
+        var td;
+        var actualMonthTdDayArray = [];
+
+        function creatActualMonthTdCells(ind) {
+            let nextInd = ind + 1;
+
+            td = document.createElement("td");
+            td.innerHTML = inputDate.map(item => {
+                return (new Date(item)).getDate();
+            })[ind];
+
+            actualMonthTdDayArray.push(td)
+
+            if (nextInd < inputDate.length) {
+                return creatActualMonthTdCells(ind + 1)
+            }
+        }
+
+        creatActualMonthTdCells(0);
+
+
+        //creatPreviousMonthTdCells creat the previous month table td and put them in the previousMonthTdDayArray
+        let tdPreviousMonth;
+        let previousMonthTdDayArray = [];
+
+        function creatPreviousMonthTdCells(ind) {
+            let nextInd = ind + 1;
+            tdPreviousMonth = document.createElement("td");
+            tdPreviousMonth.innerHTML = previousMonthDate.map(item => {
+                return (new Date(item)).getDate();
+            })[ind];
+            tdPreviousMonth.style.fontSize = "small"
+            previousMonthTdDayArray.push(tdPreviousMonth)
+            if (nextInd < previousMonthDate.length) {
+                return creatPreviousMonthTdCells(ind + 1)
+            }
+        }
+        creatPreviousMonthTdCells(0);
+
+        //creatNextMonthTdCells creat the next month table td and put them in the nextMonthTdDayArray
+        let tdNextMonth;
+        let nextMonthTdDayArray = [];
+
+
+        function creatNextMonthTdCells(ind) {
+            tdNextMonth = document.createElement('td');
+            tdNextMonth.innerHTML = nextMonthDate.map(item => {
+                return (new Date(item)).getDate()
+            })[ind];
+
+            tdNextMonth.style.fontSize = "small"
+            nextMonthTdDayArray.push(tdNextMonth)
+            if (ind < nextMonthDate.length - 1) {
+                return creatNextMonthTdCells(ind + 1)
+            }
+        }
+
+        creatNextMonthTdCells(0)
+
+        //concatedArray is an array with previous, actual and next month days array concatenated
+        let concatedArray = previousMonthTdDayArray.concat(actualMonthTdDayArray.concat(nextMonthTdDayArray))
+
+        //populate th table allow to iterate through the concatedarray and put the day month in the table  
+
+
+        function populateTable(i) {
+            //i = tdIndex
+            // let rowIndex = r + 1;
+            if (firstDay != 1) {
+                if (0 < i && i <= 7) {
+
+                    if (i < firstDay - 1) {
+                        table.rows[2].appendChild(concatedArray[previousMonthTdDayArray.length - 1 - (firstDay - 1) + i]);
+                    }
+                    if (firstDay - 1 <= i) {
+                        table.rows[2].appendChild(concatedArray[previousMonthTdDayArray.length - 1 - (firstDay - 1) + i]);
+                    }
+                }
+                if (7 < i && i <= 14) {
+                    table.rows[3].appendChild(concatedArray[previousMonthTdDayArray.length - 1 - (firstDay - 1) + i]);
+                }
+                if (14 < i && i <= 21) {
+                    table.rows[4].appendChild(concatedArray[previousMonthTdDayArray.length - 1 - (firstDay - 1) + i]);
+                }
+                if (21 < i && i <= 28) {
+                    table.rows[5].appendChild(concatedArray[previousMonthTdDayArray.length - 1 - (firstDay - 1) + i]);
+                }
+
+                if (28 < i && i <= 35) {
+                    table.rows[6].appendChild(concatedArray[previousMonthTdDayArray.length - 1 - (firstDay - 1) + i]);
+                }
+
+                if (35 < i && i <= 42) {
+                    table.rows[7].appendChild(concatedArray[previousMonthTdDayArray.length - 1 - (firstDay - 1) + i]);
+                }
+            } else if (firstDay == 1) {
+                if (0 < i && i <= 7) {
+                    table.rows[2].appendChild(concatedArray[previousMonthTdDayArray.length - 1 + i]);
+                }
+                if (7 < i && i <= 14) {
+                    table.rows[3].appendChild(concatedArray[previousMonthTdDayArray.length - 1 + i]);
+                }
+
+                if (14 < i && i <= 21) {
+                    table.rows[4].appendChild(concatedArray[previousMonthTdDayArray.length - 1 + i]);
+                }
+                if (21 < i && i <= 28) {
+                    table.rows[5].appendChild(concatedArray[previousMonthTdDayArray.length - 1 + i]);
+                }
+                if (28 < i && i <= 35) {
+                    table.rows[6].appendChild(concatedArray[previousMonthTdDayArray.length - 1 + i]);
+                }
+                if (35 < i && i <= 42) {
+                    table.rows[7].appendChild(concatedArray[previousMonthTdDayArray.length - 1 + i]);
+
+                }
+            }
+            if (i <= 42) {
+                return populateTable(i + 1)
+            }
+        }
+
+        populateTable(0);
+
+
+        //style section 
+
+        previousMonthTdDayArray.map(item => item.style.backgroundColor = "#F4F6F7");
+        previousMonthTdDayArray.map(item => item.style.fontSize = 20)
+
+        nextMonthTdDayArray.map(item => item.style.backgroundColor = "#F4F6F7");
+        nextMonthTdDayArray.map(item => item.style.fontSize = "10px");
+
+
+        actualMonthTdDayArray.map(item => item.style.fontWeight = "900")
+        actualMonthTdDayArray.map(item => {
+            item.style.backgroundColor = "#B5EBC3"
+        })
+    </script>
+</body>
+
+</html>
